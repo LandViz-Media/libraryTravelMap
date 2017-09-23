@@ -11,9 +11,12 @@ if ($mysqli->connect_error) {
 
 $table = 'libraryTravelMap_miles';
 
-$teacher = "Ms. Daby";
+//$teacher = "Ms. Daby";
+
+$teacher = $_POST['teacher'];
 
 
+print "<h4>".$teacher."</h4>";
 
 date_default_timezone_set('UTC');
 
