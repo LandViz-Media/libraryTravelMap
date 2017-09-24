@@ -1,3 +1,45 @@
+<?php
+
+//header('Content-type: text/plain');
+require("conn.php");
+
+$mysqli = new mysqli($hostname, $username, $password, $database);
+// Check connection
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+
+$table = 'libraryTravelMap_teachers';
+ $teacherSelect = "";
+
+$sql = "SELECT teacher, grade FROM $table";
+
+
+$result = $mysqli->query($sql);
+
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+	    $teacher = $row["teacher"];
+	    $grade = $row["grade"];
+
+	    $teacherSelect .= '<option value="'.$grade.'">'.$teacher.'</option>';
+    }
+}
+
+
+$mysqli->close();
+
+
+
+
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,53 +49,61 @@ html, body {
     /*height:100%;*/
     margin:0;
     padding:0;
-	height: 100vh;
+/* 	height: 100vh; */
 }
+
+
+#mainContainer {
+    display: flex;
+    width: 100%;
+    padding: 0px;
+    height: 524px;
+    background: lightgrey;
+    box-sizing: border-box;
+    border: 4px solid black;
+	}
+
 
 #map {
 	width: 516px;
-	height: 520px;
-	margin: 4px 0px 4px 4px;
+	height: 516px;
+	margin: 0px;
 	padding: 0;
-	float:left;
 	box-sizing: border-box;
-/*
-	border-left: 4px solid black;
-	border-top: 4px solid black;
-	border-bottom: 4px solid black;
-*/
+	background-color: orange;
+
 }
 
 
 #classDataContainer {
+
+
+	flex: 1; /* my goal is that the width always fills up independent of browser width */
 	background:#e0ff79;
-	width: 100%;
-	height: 528px;
+	margin-left: 0px;
+		margin-top: 0px;
+/* 	width: 100%; */
+	height: 516px;
 	box-sizing: border-box;
-	border: 4px solid black;
+/* 	border: 0px, 0px, 0px, 4px solid black; */
 /* 	border-left: 0px solid black; */
 }
 
 
 #classData {
-	float:left;
-	background:red;
-	width: auto;
-	margin-right: 0px
-/*
-	width: 100%;
-	height: 520px;
-	padding: 10px;
-*/
-box-sizing: border-box;
-	border-left: 2px solid black;
-	margin-left: 0px;
+	background:aqua;
+	height: 516px;
+	padding-left:10px;
+	padding-right:10px;
 	box-sizing: border-box;
+	border-left: 2px solid black;
 }
 
 
 #classData h3{
 	text-align: center;
+	margin-top: 0;
+
 }
 
 
@@ -88,17 +138,29 @@ box-sizing: border-box;
 </head>
 
 <body>
-	<div>
+	<div id = 'mainContainer'>
 		<div id="map"></div>
-
 		<div id ="classDataContainer">
 			<div id ="classData">
 			<h3> Class Data </h3>
+
+
+			  Class:
+  <select id="selectedTeacher">
+  <option value="-"></option>
+  <?php print $teacherSelect ?>
+</select>
+<br>
+
+
+
+
+
 			Total distance: <span id = "classTotalDistance"> 0 </span> miles as of <em>date</em>.
 			</div>
-		</div>
-		<!-- End Class Data Div -->
-	</div>
+		</div> <!-- End Class Data Div -->
+	</div>  <!-- End Main Container Div -->
+
 
 
 
@@ -145,7 +207,7 @@ var map = L.map('map', {
 
 // add an OpenStreetMap tile layer
 var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-  attribution: 'The map contributors',
+  attribution: 'LVM',
   maxZoom: 18,
   // noWrap: true
 }).addTo(map);
