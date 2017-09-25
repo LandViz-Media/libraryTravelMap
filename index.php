@@ -43,7 +43,7 @@ $mysqli->close();
 <!DOCTYPE html>
 <html>
 <head>
-<title>Library Map</title>
+<title>Ogden Elem. Library Map</title>
 <style>
 html, body {
     /*height:100%;*/
@@ -70,7 +70,7 @@ html, body {
 	margin: 0px;
 	padding: 0;
 	box-sizing: border-box;
-	background-color: orange;
+	background-color: black;
 
 }
 
@@ -181,6 +181,15 @@ html, body {
 
 <script>
 
+
+	var map;
+
+// Shorthand for $( document ).ready()
+$(function() {
+    console.log( "ready!" );
+
+
+
     // Sphere Mollweide: http://spatialreference.org/ref/esri/53009/
     var crs = new L.Proj.CRS('ESRI:53009', '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs', {
         resolutions: [65536, 32768, 16384, 8192, 4096, 2048]
@@ -193,7 +202,7 @@ html, body {
 
 var map = L.map('map', {
         minZoom: 0,
-        maxZoom: 3,
+        maxZoom: 10,
         worldCopyJump: false,
         //crs: crs,
 		continuousWorld: false,
@@ -210,7 +219,7 @@ var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: 'LVM',
   maxZoom: 18,
   // noWrap: true
-}).addTo(map);
+});
 
 
 map.setView([42.04, -94.030556], 0);
@@ -239,7 +248,7 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
 
 
-    L.geoJson(countries, {
+   var countries = L.geoJson(countries, {
         style: {
             color: '#000',
             weight: 0.5,
@@ -264,7 +273,7 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     }).addTo(map);
 
 
-  var graticule45 =  L.graticule({
+var graticule45 =  L.graticule({
 	    sphere: false,
 	    interval: 45,
         style: {
@@ -272,7 +281,7 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             weight: 1,
             opacity: 0.5
         }
-    }).addTo(map);
+    });
 
 //show prime meridiean and Equator
       var graticule180 =  L.graticule({
@@ -285,14 +294,6 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             fillOpacity: 0,
         }
     }).addTo(map);
-
-
-
-
-
-
-
-
 
 
 
@@ -325,19 +326,20 @@ d100 = d500/5;
 
 distance = 1800;
 
-adjustDistance = (distance/100) * d100;
+var adjustDistance = (distance/100) * d100;
+
 
 //---------------
 
 
-homeLng = -94.030556;
+
+var homeLng = -94.030556;
+
+
+var currentMarker = L.marker([42, -125 ]).addTo(map);
+
 var ogden = L.marker([42, homeLng ]).addTo(map);
 ogden.bindPopup('This is Ogden, Iowa.')
-
-newLng = homeLng + adjustDistance;
-console.log(newLng);
-var currentMarker = L.marker([42, newLng ]).addTo(map);
-currentMarker.bindPopup('I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
 
 //draw a line along the route
 
@@ -349,11 +351,10 @@ currentMarker.bindPopup('I am not really sure where I am ...<br>but I know I am 
 
 
 
-
-
 //layer control
 var baseMaps = {
-	"Street Map": osm
+	"Street Map": osm,
+	"Countries": countries
 
 /*
     "Grayscale": grayscale,
@@ -363,19 +364,28 @@ var baseMaps = {
 
 var overlayMaps = {
     "Ogden": ogden,
-    "Current Location": currentMarker
+    "Current Location": currentMarker,
+    "Prime Meridian & Equator": graticule180,
+    "45th Parallel": graticule45
 };
 
 
+L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
-
-
-
-// Shorthand for $( document ).ready()
-$(function() {
-    console.log( "ready!" );
     $("#classTotalDistance").html("<b>"+distance.toLocaleString()+"</b>");
+
+    $("#selectedTeacher").change( function() {
+	    currentMarker.remove();
+
+		newLng = homeLng + adjustDistance;
+		console.log(newLng);
+		var currentMarker = L.marker([42, newLng ]).addTo(map);
+		currentMarker.bindPopup('I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
+    });
+
+
+
 });
 
 
