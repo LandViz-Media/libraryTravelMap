@@ -71,13 +71,10 @@ html, body {
 	padding: 0;
 	box-sizing: border-box;
 	background-color: black;
-
 }
 
 
 #classDataContainer {
-
-
 	flex: 1; /* my goal is that the width always fills up independent of browser width */
 	background:#e0ff79;
 	margin-left: 0px;
@@ -103,7 +100,6 @@ html, body {
 #classData h3{
 	text-align: center;
 	margin-top: 0;
-
 }
 
 
@@ -144,9 +140,7 @@ html, body {
 			<div id ="classData">
 			<h3> Class Data </h3>
 
-
-			  Class:
-  <select id="selectedTeacher">
+			  Class: <select id="selectedTeacher">
   <option value="-"></option>
   <?php print $teacherSelect ?>
 </select>
@@ -160,8 +154,6 @@ html, body {
 			</div>
 		</div> <!-- End Class Data Div -->
 	</div>  <!-- End Main Container Div -->
-
-
 
 
 
@@ -184,17 +176,13 @@ $(function() {
     });
 
 
-
-
-
-
-var map = L.map('map', {
-        minZoom: 0,
-        maxZoom: 10,
-        worldCopyJump: false,
-        //crs: crs,
-		continuousWorld: false,
-});
+	var map = L.map('map', {
+	        minZoom: 0,
+	        maxZoom: 10,
+	        worldCopyJump: false,
+	        //crs: crs,
+			continuousWorld: false,
+	});
 
 
 
@@ -236,7 +224,7 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
 
 
-   var countries = L.geoJson(countries, {
+   var countriesMap = L.geoJson(countries, {
         style: {
             color: '#000',
             weight: 0.5,
@@ -245,8 +233,6 @@ var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             fillOpacity: 1
         }
     }).addTo(map);
-
-
 
 
   var graticuleOutline =  L.graticule({
@@ -324,7 +310,7 @@ var adjustDistance = (distance/100) * d100;
 var homeLng = -94.030556;
 
 
-var currentMarker = L.marker([42, -125 ]).addTo(map);
+var currentMarker = L.marker([42, -125 ]);
 
 var ogden = L.marker([42, homeLng ]).addTo(map);
 ogden.bindPopup('This is Ogden, Iowa.')
@@ -342,7 +328,7 @@ ogden.bindPopup('This is Ogden, Iowa.')
 //layer control
 var baseMaps = {
 	"Street Map": osm,
-	"Countries": countries
+	"Countries": countriesMap
 
 /*
     "Grayscale": grayscale,
@@ -364,7 +350,11 @@ L.control.layers(baseMaps, overlayMaps).addTo(map);
     $("#classTotalDistance").html("<b>"+distance.toLocaleString()+"</b>");
 
     $("#selectedTeacher").change( function() {
-	    currentMarker.remove();
+
+		if (typeof currentMarker != "undefined") {
+			alert("GOT THERE");
+			currentMarker.remove();
+		}
 
 		newLng = homeLng + adjustDistance;
 		console.log(newLng);
