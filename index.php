@@ -1,7 +1,7 @@
 <?php
 
 //header('Content-type: text/plain');
-require("conn.php");
+require("../../conn1.php");
 
 $mysqli = new mysqli($hostname, $username, $password, $database);
 // Check connection
@@ -76,30 +76,29 @@ html, body {
 
 #classDataContainer {
 	flex: 1; /* my goal is that the width always fills up independent of browser width */
-	background:#e0ff79;
+	background: rgba(0, 0, 0, 0.05);
 	margin-left: 0px;
-		margin-top: 0px;
-/* 	width: 100%; */
+	margin-top: 0px;
+	padding: 0px;
 	height: 516px;
 	box-sizing: border-box;
-/* 	border: 0px, 0px, 0px, 4px solid black; */
-/* 	border-left: 0px solid black; */
 }
 
-
 #classData {
-	background:aqua;
+	background: white;
 	height: 516px;
-	padding-left:10px;
-	padding-right:10px;
+	padding-left: 10px;
+	padding-right: 10px;
 	box-sizing: border-box;
 	border-left: 2px solid black;
+	margin: 0px;
 }
 
 
 #classData h3{
 	text-align: center;
-	margin-top: 0;
+	margin-top: 0px;
+	padding-top: 10px;
 }
 
 
@@ -123,6 +122,8 @@ html, body {
 
 <!-- load helper classes -->
 <script src="classes/L.Graticule.js"></script>
+<script src="classes/moment.js"></script>
+
 
 <script type="text/javascript" src="classes/proj4js-compressed.js"></script>
 <script type="text/javascript" src="classes/proj4leaflet.js"></script>
@@ -140,17 +141,13 @@ html, body {
 			<div id ="classData">
 			<h3> Class Data </h3>
 
-			  Class: <select id="selectedTeacher">
-  <option value="-"></option>
-  <?php print $teacherSelect ?>
-</select>
-<br>
+			Class: <select id="selectedTeacher">
+				<option value="-"></option>
+				<?php print $teacherSelect ?>
+			</select>
+			<br><br>
 
-
-
-
-
-			Total distance: <span id = "classTotalDistance"> 0 </span> miles as of <em>date</em>.
+			<span id = "classTotalDistanceDate">-</span>
 			</div>
 		</div> <!-- End Class Data Div -->
 	</div>  <!-- End Main Container Div -->
@@ -163,6 +160,7 @@ html, body {
 
 
 	var map;
+	var currentMarker;
 
 // Shorthand for $( document ).ready()
 $(function() {
@@ -184,44 +182,16 @@ $(function() {
 			continuousWorld: false,
 	});
 
+	// add an OpenStreetMap tile layer
+	var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	  attribution: 'LVM',
+	  maxZoom: 18,
+	  // noWrap: true
+	});
 
 
-
-
-
-
-// add an OpenStreetMap tile layer
-var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-  attribution: 'LVM',
-  maxZoom: 18,
-  // noWrap: true
-});
-
-
-map.setView([42.04, -94.030556], 0);
-map.fitWorld();
-
-
-
-/*
-// Specify bold red lines instead of thin grey lines
-L.graticule({
-	interval: 42,
-    style: {
-        color: '#f00',
-        weight: 1
-    }
-}).addTo(map);
-
-
-
-
-
-var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    noWrap: true
-});
-*/
-
+	map.setView([42.04, -94.030556], 0);
+	map.fitWorld();
 
 
    var countriesMap = L.geoJson(countries, {
@@ -271,8 +241,24 @@ var graticule45 =  L.graticule({
 
 
 
+/*
+// Specify bold red lines instead of thin grey lines
+L.graticule({
+	interval: 42,
+    style: {
+        color: '#f00',
+        weight: 1
+    }
+}).addTo(map);
 
 
+
+
+
+var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    noWrap: true
+});
+*/
 
 
 
@@ -295,30 +281,20 @@ var graticule45 =  L.graticule({
 
 //http://stevemorse.org/nearest/distance.php
 d500 = 9.717525;  //ellipsoidal earth 500 miles at lat 42 is 9.717525
-
 d100 = d500/5;
-
-distance = 1800;
-
-var adjustDistance = (distance/100) * d100;
 
 
 //---------------
 
-
-
 var homeLng = -94.030556;
 
+var distance;
+var adjustDistance;
 
-var currentMarker = L.marker([42, -125 ]);
+currentMarker = L.marker([42, homeLng ]);
 
 var ogden = L.marker([42, homeLng ]).addTo(map);
 ogden.bindPopup('This is Ogden, Iowa.')
-
-//draw a line along the route
-
-
-
 
 
 
@@ -347,20 +323,85 @@ var overlayMaps = {
 L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
-    $("#classTotalDistance").html("<b>"+distance.toLocaleString()+"</b>");
+
 
     $("#selectedTeacher").change( function() {
 
+
+
 		if (typeof currentMarker != "undefined") {
-			alert("GOT THERE");
+			console.log("removed current marker");
 			currentMarker.remove();
 		}
 
-		newLng = homeLng + adjustDistance;
-		console.log(newLng);
-		var currentMarker = L.marker([42, newLng ]).addTo(map);
-		currentMarker.bindPopup('I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
-    });
+		if (typeof allMarkers != "undefined") {
+			allMarkers.clearLayers();
+		}
+
+
+		//Load in the marker data
+
+
+		grade = $("#selectedTeacher").val();
+		selectedTeacher = $("#selectedTeacher :selected").text();
+		console.log(selectedTeacher);
+
+		$.getJSON( "dataSumByClass.php?grade="+grade, function( data ) {
+			console.log(data.length);
+
+
+
+			//var cities = L.layerGroup([littleton, denver, aurora, golden]);
+
+			allMarkers = L.layerGroup([]);
+
+
+			$.each(data, function(i, item) {
+
+				distance = item.totalMiles;
+				adjustDistance = (distance/100) * d100;
+
+				date = item.date;
+
+				date = moment(date).format('MMMM Do');
+
+				if (item.teacher == selectedTeacher) {
+					$("#classTotalDistanceDate").html("Total distance: <b>"+distance.toLocaleString()+"</b> miles.")
+					// as of "+date);
+
+					//Total distance: 1087 miles as of date.
+
+
+					$("#classData").css("background", item.dayColor );
+				};
+
+
+					newLng = homeLng + adjustDistance;
+					//console.log(newLng);
+					newMarker = L.marker([42, newLng ]);
+					newMarker.bindPopup('Class: '+item.teacher+'<br>I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
+
+
+					newMarker.addTo(allMarkers);
+
+
+
+
+
+			});
+
+				allMarkers.addTo(map);
+
+
+
+
+
+	 //draw a line along the route
+
+
+		}); //end get JSON for selected teacher
+
+    });  //end selected tesacher change function
 
 
 

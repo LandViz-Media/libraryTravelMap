@@ -1,6 +1,6 @@
 <?php
 //header('Content-type: text/plain');
-require("conn.php");
+require("../../conn1.php");
 
 $mysqli = new mysqli($hostname, $username, $password, $database);
 // Check connection
@@ -8,13 +8,9 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-
 $table = 'libraryTravelMap_miles';
 
-//$teacher = "Ms. Daby";
-
 $teacher = $_POST['teacher'];
-
 
 print "<h4>".$teacher."</h4>";
 

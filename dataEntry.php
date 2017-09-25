@@ -1,7 +1,7 @@
 <?php
 
 //header('Content-type: text/plain');
-require("conn.php");
+require("../../conn1.php");
 
 $mysqli = new mysqli($hostname, $username, $password, $database);
 // Check connection
