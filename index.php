@@ -46,7 +46,7 @@ $mysqli->close();
 <title>Ogden Elem. Library Map</title>
 <style>
 html, body {
-    /*height:100%;*/
+    height:100%;
     margin:0;
     padding:0;
 /* 	height: 100vh; */
@@ -54,10 +54,10 @@ html, body {
 
 
 #mainContainer {
-    display: flex;
+/*     display: flex; */
     width: 100%;
     padding: 0px;
-    height: 524px;
+    height: 75%;
     background: lightgrey;
     box-sizing: border-box;
     border: 4px solid black;
@@ -65,28 +65,28 @@ html, body {
 
 
 #map {
-	width: 516px;
-	height: 516px;
+	width: 100%;
+	height: 100%;
 	margin: 0px;
 	padding: 0;
 	box-sizing: border-box;
-	background-color: black;
+	background-color: grey;
 }
 
 
 #classDataContainer {
-	flex: 1; /* my goal is that the width always fills up independent of browser width */
+/* 	flex: 1; /* my goal is that the width always fills up independent of browser width */ */
 	background: rgba(0, 0, 0, 0.05);
 	margin-left: 0px;
 	margin-top: 0px;
 	padding: 0px;
-	height: 516px;
+/* 	height: 516px; */
 	box-sizing: border-box;
 }
 
 #classData {
 	background: white;
-	height: 516px;
+/* 	height: 516px; */
 	padding-left: 10px;
 	padding-right: 10px;
 	box-sizing: border-box;
@@ -116,17 +116,25 @@ html, body {
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
 
-<!-- load external data -->
-<script type="text/javascript" src="classes/countries-110m.js"></script>
-
 
 <!-- load helper classes -->
+<script src="classes/icons.js"></script>
 <script src="classes/L.Graticule.js"></script>
 <script src="classes/moment.js"></script>
 
 
 <script type="text/javascript" src="classes/proj4js-compressed.js"></script>
 <script type="text/javascript" src="classes/proj4leaflet.js"></script>
+
+
+<!-- load external data -->
+<script type="text/javascript" src="classes/mapTiles.js"></script>
+<script type="text/javascript" src="classes/countries-110m.js"></script>
+<script type="text/javascript" src="classes/mapOverlays.js"></script>
+
+<!-- load highcharts -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script
 
 
 
@@ -137,20 +145,26 @@ html, body {
 <body>
 	<div id = 'mainContainer'>
 		<div id="map"></div>
-		<div id ="classDataContainer">
-			<div id ="classData">
-			<h3> Class Data </h3>
 
-			Class: <select id="selectedTeacher">
-				<option value="-"></option>
-				<?php print $teacherSelect ?>
-			</select>
-			<br><br>
-
-			<span id = "classTotalDistanceDate">-</span>
-			</div>
-		</div> <!-- End Class Data Div -->
 	</div>  <!-- End Main Container Div -->
+
+	<div id ="classDataContainer">
+		<div id ="classData">
+		<h3> Class Data </h3>
+
+		Class: <select id="selectedTeacher">
+			<option value="-"></option>
+			<?php print $teacherSelect ?>
+		</select>
+		<br><br>
+
+		<img id="selectColorMarker" src="images/whiteSpace.png" alt="color marker" height="21" width="13"> <span id = "classTotalDistanceDate"></span>
+		</div>
+	</div> <!-- End Class Data Div -->
+
+	<div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+
 
 
 
@@ -159,12 +173,24 @@ html, body {
 <script>
 
 
-	var map;
-	var currentMarker;
+	//var currentMarker;
+	var map, markerColor, classPolyline;
 
 // Shorthand for $( document ).ready()
 $(function() {
     console.log( "ready!" );
+
+
+
+//map layers are loaded through an external script
+
+
+
+
+
+
+
+
 
 
 
@@ -175,214 +201,206 @@ $(function() {
 
 
 	var map = L.map('map', {
-	        minZoom: 0,
-	        maxZoom: 10,
+	        minZoom: 1,
+	        maxZoom: 16,
 	        worldCopyJump: false,
 	        //crs: crs,
 			continuousWorld: false,
 	});
 
-	// add an OpenStreetMap tile layer
-	var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-	  attribution: 'LVM',
-	  maxZoom: 18,
-	  // noWrap: true
+	map.setView([42.04, -94.030556], 3);
+	//map.fitWorld();
+	Stamen_Toner.addTo(map);
+	graticuleOutline.addTo(map);
+	graticule45.addTo(map);
+
+
+
+
+
+/*
+
+	var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+	    noWrap: true
 	});
-
-
-	map.setView([42.04, -94.030556], 0);
-	map.fitWorld();
-
-
-   var countriesMap = L.geoJson(countries, {
-        style: {
-            color: '#000',
-            weight: 0.5,
-            opacity: 1,
-            fillColor: '#fff',
-            fillOpacity: 1
-        }
-    }).addTo(map);
-
-
-  var graticuleOutline =  L.graticule({
-        sphere: true,
-        style: {
-            color: '#777',
-            opacity: 1,
-            fillColor: '#ccf',
-            fillOpacity: 0,
-            weight: 2
-        }
-    }).addTo(map);
-
-
-var graticule45 =  L.graticule({
-	    sphere: false,
-	    interval: 45,
-        style: {
-            color: '#777',
-            weight: 1,
-            opacity: 0.5
-        }
-    });
-
-//show prime meridiean and Equator
-      var graticule180 =  L.graticule({
-	    sphere: false,
-	    interval: 180,
-        style: {
-            color: '#777',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0,
-        }
-    }).addTo(map);
-
-
-
-/*
-// Specify bold red lines instead of thin grey lines
-L.graticule({
-	interval: 42,
-    style: {
-        color: '#f00',
-        weight: 1
-    }
-}).addTo(map);
-
-
-
-
-
-var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    noWrap: true
-});
-*/
+	*/
 
 
 
 
 
 
-//Add Markers
+	//---------------Distance Calculations
+	//42.04, -94.030556  is Ogden
 
-//---------------
-//42.04, -94.030556
-
-
-//95.9482773   - 94  = 100 miles
-
-//1.94929
+	//95.9482773   - 94  = 1.9482773  = 100 miles
+	//1.94929  alternative calcualtion
+	//1.94250  alternative calcualtion
 
 
-//1.94250
-
-
-//http://stevemorse.org/nearest/distance.php
-d500 = 9.717525;  //ellipsoidal earth 500 miles at lat 42 is 9.717525
-d100 = d500/5;
-
-
-//---------------
-
-var homeLng = -94.030556;
-
-var distance;
-var adjustDistance;
-
-currentMarker = L.marker([42, homeLng ]);
-
-var ogden = L.marker([42, homeLng ]).addTo(map);
-ogden.bindPopup('This is Ogden, Iowa.')
+	//http://stevemorse.org/nearest/distance.php
+	d500 = 9.717525;  //ellipsoidal earth 500 miles at lat 42 is 9.717525
+	d100 = d500/5;
 
 
 
 
+	var homeLng = -94.030556;
+
+	var distance;
+	var adjustDistance;
 
 
-//layer control
-var baseMaps = {
-	"Street Map": osm,
-	"Countries": countriesMap
 
-/*
-    "Grayscale": grayscale,
-    "Streets": streets
-*/
-};
+	var ogden = L.marker([42, homeLng ], {icon: bulldog21}).addTo(map);
+	ogden.bindPopup('This is Ogden, Iowa.')
 
-var overlayMaps = {
-    "Ogden": ogden,
-    "Current Location": currentMarker,
-    "Prime Meridian & Equator": graticule180,
-    "45th Parallel": graticule45
-};
-
-
-L.control.layers(baseMaps, overlayMaps).addTo(map);
+	//---------------
 
 
 
 
     $("#selectedTeacher").change( function() {
-
-
-
+/*
 		if (typeof currentMarker != "undefined") {
-			console.log("removed current marker");
-			currentMarker.remove();
+			//console.log("removed current marker");
+			//currentMarker.remove();
 		}
+*/
 
 		if (typeof allMarkers != "undefined") {
 			allMarkers.clearLayers();
+			classPolylines.remove();
 		}
 
 
 		//Load in the marker data
-
-
 		grade = $("#selectedTeacher").val();
 		selectedTeacher = $("#selectedTeacher :selected").text();
 		console.log(selectedTeacher);
 
+
+		//Get Graph Info
+
+
+
+
+
+		//Get Map Info
 		$.getJSON( "dataSumByClass.php?grade="+grade, function( data ) {
 			console.log(data.length);
 
-
+			var dateLine = false;
 
 			//var cities = L.layerGroup([littleton, denver, aurora, golden]);
 
 			allMarkers = L.layerGroup([]);
-
+			classPolylines = L.layerGroup([]);
 
 			$.each(data, function(i, item) {
 
 				distance = item.totalMiles;
-				adjustDistance = (distance/100) * d100;
+				adjustDegrees = (distance/100) * d100;
+				newLng = homeLng + adjustDegrees;
+
+/*
+				if (newLng=>180) {
+					x = newLng - 180;
+					newLng = -180 + x;
+					dateLine = true;
+				}
+*/
+
+				dateLine = false;
+
 
 				date = item.date;
 
 				date = moment(date).format('MMMM Do');
 
+
+				markerColor = eval(item.dayColor+"IconSmall");
+
+
 				if (item.teacher == selectedTeacher) {
+
+					markerColor = eval(item.dayColor+"Icon");
+
 					$("#classTotalDistanceDate").html("Total distance: <b>"+distance.toLocaleString()+"</b> miles.")
 					// as of "+date);
 
-					//Total distance: 1087 miles as of date.
+					//$("#classData").css("background", item.dayColorCode );
+
+					$("#selectColorMarker").attr('src','https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-'+item.dayColor+'.png');
 
 
-					$("#classData").css("background", item.dayColor );
+					pointA = new L.LatLng(42, homeLng);
+					pointB = new L.LatLng(42, newLng);
+
+					if (dateLine==true) {
+						pointB = new L.LatLng(42, 180)
+						pointC = new L.LatLng(42, -180)
+						pointD = new L.LatLng(42, newLng)
+						pointList = [pointA, pointB];
+						pointList2 = [pointC, pointD];
+
+						classPolyline = new L.Polyline(pointList, {
+						    color: item.dayColorCode,
+						    weight: 3,
+						    opacity: 0.8,
+						    smoothFactor: 1,
+						    dashArray: '10,5',
+						    lineJoin: 'round'
+						});
+						classPolyline.addTo(classPolylines);
+
+						classPolyline = new L.Polyline(pointList2, {
+						    color: item.dayColorCode,
+						    weight: 3,
+						    opacity: 0.8,
+						    smoothFactor: 1,
+						    dashArray: '10,5',
+						    lineJoin: 'round'
+						});
+						classPolyline.addTo(classPolylines);
+
+
+					}else{
+						pointList = [pointA, pointB];
+
+						classPolyline = new L.Polyline(pointList, {
+							color: item.dayColorCode,
+							weight: 3,
+						    opacity: 0.8,
+						    smoothFactor: 1,
+						    dashArray: '10,5',
+						    lineJoin: 'round'
+						});
+						classPolyline.addTo(classPolylines);
+					}
+
+					classPolylines.addTo(map);
 				};
 
 
-					newLng = homeLng + adjustDistance;
-					//console.log(newLng);
-					newMarker = L.marker([42, newLng ]);
+
+
+
+
+
+
+
+					newMarker = L.marker([42, newLng ], {icon: markerColor});
 					newMarker.bindPopup('Class: '+item.teacher+'<br>I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
 
 
+
+
+
 					newMarker.addTo(allMarkers);
+
+
+					////L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
 
 
 
@@ -396,13 +414,87 @@ L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
 
-	 //draw a line along the route
-
 
 		}); //end get JSON for selected teacher
 
-    });  //end selected tesacher change function
 
+
+
+		//HighCharts
+
+		Highcharts.chart('container1', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Miles Graph'
+    },
+    xAxis: {
+        categories: ['9/1', '9/2', '9/7', '9/21', '9/23']
+    },
+
+   yAxis: {
+        max: 500
+    },
+    credits: {
+        enabled: false
+    },
+    series: [{
+        name: "Class: " + selectedTeacher,
+        data: [500, 300, 400, 0, 200]
+    }]
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    });  //end selected teacher change function
+
+
+
+
+    	//layer control
+	var baseMaps = {
+		"B/W State & Country": Stamen_Toner,
+		"Grey State & Country": Stamen_TonerLite,
+		"OpenStreetMap - International": osm,
+		"World Street Map": Esri_WorldStreetMap,
+		"National Geographic": Esri_NatGeoWorldMap,
+		"World Imagery": Esri_WorldImagery,
+		"Physical World": Esri_WorldPhysical,
+		"Ocean Basemap": Esri_OceanBasemap,
+		"Terrain Background": Stamen_TerrainBackground,
+		"Open Topo": OpenTopoMap,
+		"Shaded Relief": Esri_WorldShadedRelief,
+		"Earth at Night 2012": NASAGIBS_ViirsEarthAtNight2012,
+		"Dark Matter!": CartoDB_DarkMatter,
+		//"Countries": countriesMap
+	};
+
+	var overlayMaps = {
+	    "Ogden": ogden,
+	    //"Current Location": currentMarker,
+	    "Prime Meridian & Equator": graticule180,
+	    "45th Parallel": graticule45
+	};
+	L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
 });

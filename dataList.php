@@ -20,7 +20,7 @@ $text = '';
 $totalMiles = 0;
 
 
-$sql = "SELECT miles, date FROM $table WHERE teacher = '$teacher'";
+$sql = "SELECT miles, date FROM $table WHERE teacher = '$teacher' ORDER By date";
 
 
 $result = $mysqli->query($sql);

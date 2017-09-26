@@ -95,7 +95,7 @@ $("#submitForm").submit(function(e) {
 
 	       $( "#miles" ).val('');
 	       $( "#datepicker" ).datepicker('setDate', new Date());
-	       $( "#selectedTeacher option:selected" ).val('-');
+	       //$( "#selectedTeacher option:selected" ).val('-');
 		  $( "#selectedTeacher" ).val('');
 
         }
