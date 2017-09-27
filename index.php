@@ -484,7 +484,7 @@ $(function() {
 
 		}); //end get JSON for selected teacher
 
-			map.fitBounds(allMarkers.getBounds());
+			//map.fitBounds(allMarkers.getBounds());
 
     });  //end selected teacher change function
 
