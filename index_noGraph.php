@@ -57,7 +57,7 @@ html, body {
 /*     display: flex; */
     width: 100%;
     padding: 0px;
-    height: 70%;
+    height: 75%;
     background: lightgrey;
     box-sizing: border-box;
     border: 4px solid black;
@@ -82,25 +82,24 @@ html, body {
 	padding: 0px;
 /* 	height: 516px; */
 	box-sizing: border-box;
-	border: 2px solid black;
 }
 
 #classData {
 	background: white;
 /* 	height: 516px; */
-	padding: 10px;
-	padding-top: 15px;
+	padding-left: 10px;
+	padding-right: 10px;
 	box-sizing: border-box;
-/* 	border-left: 2px solid black; */
+	border-left: 2px solid black;
 	margin: 0px;
 }
 
-#barChart {
-	min-width: 310px;
-	height: 250px;
-	margin: 0 auto;
-}
 
+#classData h3{
+	text-align: center;
+	margin-top: 0px;
+	padding-top: 10px;
+}
 
 
 
@@ -151,21 +150,19 @@ html, body {
 
 	<div id ="classDataContainer">
 		<div id ="classData">
-<!-- 		<h3> Class Data </h3> -->
+		<h3> Class Data </h3>
 
 		Class: <select id="selectedTeacher">
 			<option value="-"></option>
 			<?php print $teacherSelect ?>
 		</select>
-			&nbsp; 	&nbsp; 	&nbsp;
+		<br><br>
 
 		<img id="selectColorMarker" src="images/whiteSpace.png" alt="color marker" height="21" width="13"> <span id = "classTotalDistanceDate"></span>
 		</div>
-		<div id="barChart"></div>
-
 	</div> <!-- End Class Data Div -->
 
-
+	<div id="container1" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
 
 
 
@@ -211,15 +208,25 @@ $(function() {
 			continuousWorld: false,
 	});
 
-	map.setView([42.04, -80], 4);
+	map.setView([42.04, -94.030556], 3);
 	//map.fitWorld();
 	Stamen_Toner.addTo(map);
 	graticuleOutline.addTo(map);
+	graticule45.addTo(map);
+
+
+
+
 
 /*
-	graticule45.addTo(map);
-	majorLatitudeLines.addTo(map);
-*/
+
+	var layer = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+	    noWrap: true
+	});
+	*/
+
+
+
 
 
 
@@ -309,20 +316,13 @@ $(function() {
 
 			//Draw the HighCharts
 
-			Highcharts.chart('barChart', {
+			Highcharts.chart('container1', {
 			    chart: {
 			        type: 'column'
 			    },
 			    title: {
-			        //text: 'Daily Mileage Graph'
-			        text: null
+			        text: 'Daily Mileage Graph'
 			    },
-				legend: {
-					enabled: false
-				},
-			    exporting: {
-				    enabled: false
-				},
 			    xAxis: {
 			        categories: processed_json_dates
 			    },
@@ -460,8 +460,13 @@ $(function() {
 
 
 
+
+
 					newMarker = L.marker([42, newLng ], {icon: markerColor});
 					newMarker.bindPopup('Class: '+item.teacher+'<br>I am not really sure where I am ...<br>but I know I am '+distance+' miles from home!')
+
+
+
 
 
 					newMarker.addTo(allMarkers);
@@ -483,8 +488,6 @@ $(function() {
 
 
 		}); //end get JSON for selected teacher
-
-			map.fitBounds(allMarkers.getBounds());
 
     });  //end selected teacher change function
 
@@ -513,8 +516,7 @@ $(function() {
 	    "Ogden": ogden,
 	    //"Current Location": currentMarker,
 	    "Prime Meridian & Equator": graticule180,
-	    "45th Parallel": graticule45,
-	    "Major Lines of Latitude": majorLatitudeLines
+	    "45th Parallel": graticule45
 	};
 	L.control.layers(baseMaps, overlayMaps).addTo(map);
 

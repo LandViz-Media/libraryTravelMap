@@ -128,11 +128,12 @@ $("#submitForm").submit(function(e) {
   <option value="-"></option>
   <?php print $teacherSelect ?>
 </select>
-<br>
+<br><br>
 
-  Miles: <input type="text" id="miles" value="0"><br>
 
 Date: <input type="text" id="datepicker" name="earnedDate"></p>
+
+  Miles: <input type="text" id="miles" value="0"><br><br>
 
   <input type="submit" value="Submit">
 </form>

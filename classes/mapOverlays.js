@@ -44,6 +44,30 @@ var graticule180 =  L.graticule({
 });
 
 
+
+
+//Major circles of latitude
+var latitudeCircleOptions = {
+        color: '#777',
+        weight: 1,
+        opacity: 0.5
+};
+
+var tropicOfCancer = new L.Polyline([new L.LatLng(23.437222, -180), new L.LatLng(23.437222, 180)], latitudeCircleOptions);
+var tropicOfCapicorn = new L.Polyline([new L.LatLng(-23.437222, -180), new L.LatLng(-23.437222, 180)], latitudeCircleOptions);
+var articCircle = new L.Polyline([new L.LatLng(66.56302777777778, -180), new L.LatLng(66.56302777777778, 180)], latitudeCircleOptions);
+var antarcticCircle  = new L.Polyline([new L.LatLng(-66.56302777777778, -180), new L.LatLng(-66.56302777777778, 180)], latitudeCircleOptions);
+var equator  = new L.Polyline([new L.LatLng(0, -180), new L.LatLng(0, 180)], latitudeCircleOptions);
+
+majorLatitudeLines = L.layerGroup([tropicOfCancer, tropicOfCapicorn, articCircle, antarcticCircle, equator])
+
+
+
+
+
+
+
+
 /*
 
 // Specify bold red lines instead of thin grey lines
