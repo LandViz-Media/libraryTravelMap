@@ -237,7 +237,6 @@ $(function() {
 
 
 
-
 	var homeLng = -94.030556;
 
 	var distance, adjustDistance;
@@ -248,7 +247,7 @@ $(function() {
 
 
 	var ogden = L.marker([42, homeLng ], {icon: bulldog21}).addTo(map);
-	ogden.bindPopup('This is Ogden, Iowa.')
+	ogden.bindPopup('<img src="images/bulldogWordMark.png" alt="Ogden Community School" height="78" width="200">')
 
 	//---------------
 
