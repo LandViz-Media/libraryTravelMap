@@ -10786,7 +10786,7 @@
         "name": "New Jersey",
         "density": 1189,
         "region": "Middle Atlantic",
-        "regionColor": ""
+        "regionColor": "LightSkyBlue"
       },
       "geometry": {
         "type": "Polygon",
