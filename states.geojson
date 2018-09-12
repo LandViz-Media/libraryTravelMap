@@ -5485,7 +5485,7 @@
         "name": "Delaware",
         "density": 464.3,
         "region": "Middle Atlantic",
-        "regionColor": "light blue"
+        "regionColor": "LightSkyBlue"
       },
       "geometry": {
         "type": "Polygon",
@@ -8344,7 +8344,7 @@
         "name": "Maryland",
         "density": 596.3,
         "region": "Middle Atlantic",
-        "regionColor": "light blue"
+        "regionColor": "LightSkyBlue"
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -10786,7 +10786,7 @@
         "name": "New Jersey",
         "density": 1189,
         "region": "Middle Atlantic",
-        "regionColor": "light blue"
+        "regionColor": ""
       },
       "geometry": {
         "type": "Polygon",
@@ -11016,7 +11016,7 @@
         "name": "New York",
         "density": 412.3,
         "region": "Middle Atlantic",
-        "regionColor": "light blue"
+        "regionColor": "LightSkyBlue"
       },
       "geometry": {
         "type": "Polygon",
@@ -12290,7 +12290,7 @@
         "name": "Pennsylvania",
         "density": 284.3,
         "region": "Middle Atlantic",
-        "regionColor": "light blue"
+        "regionColor": "LightSkyBlue"
       },
       "geometry": {
         "type": "Polygon",
