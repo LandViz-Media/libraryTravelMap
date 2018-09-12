@@ -5484,8 +5484,8 @@
       "properties": {
         "name": "Delaware",
         "density": 464.3,
-        "region": "New England",
-        "regionColor": "pink"
+        "region": "Middle Atlantic",
+        "regionColor": "light blue"
       },
       "geometry": {
         "type": "Polygon",
@@ -8343,8 +8343,8 @@
       "properties": {
         "name": "Maryland",
         "density": 596.3,
-        "region": "New England",
-        "regionColor": "pink"
+        "region": "Middle Atlantic",
+        "regionColor": "light blue"
       },
       "geometry": {
         "type": "MultiPolygon",
